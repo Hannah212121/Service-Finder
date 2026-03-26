@@ -1,3 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Service Finder</title>
+</head>
+<body>
+
+<h1>Dorset Service Finder</h1>
+
+<p id="status">Loading...</p>
+
+<input type="text" id="search" placeholder="Search services...">
+
+<label>
+  <input type="checkbox" id="freeOnly"> Free only
+</label>
+
+<label>
+  Age:
+  <input type="number" id="ageInput">
+</label>
+
+<button onclick="applyFilters()">Apply Filters</button>
+
+<div id="results"></div>
 <script>
 let allServices = [];
 
@@ -74,3 +99,6 @@ function applyFilters() {
 
 fetchAllServices();
 </script>
+
+  </body>
+</html>
