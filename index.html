@@ -1,14 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Service Finder</title>
+</head>
+<body>
+
+<h1>Dorset Service Finder</h1>
+<p id="status">Loading data...</p>
+
+<!-- THIS IS THE KEY LINE -->
+<ul id="results"></ul>
+
 <script>
 let allServices = [];
 
 async function fetchAllServices() {
   const baseUrl = "https://dorset.localplacedirectory.org.uk/aggregator/services";
-  const totalPages = 204; // from your API response
+  const totalPages = 204;
   const pageSize = 10;
 
-  const status = document.createElement("p");
-  status.textContent = "Loading data...";
-  document.body.appendChild(status);
+  const status = document.getElementById("status");
 
   for (let page = 1; page <= totalPages; page++) {
     try {
@@ -40,6 +51,8 @@ function display(services) {
   });
 }
 
-// Start loading everything
 fetchAllServices();
 </script>
+
+</body>
+</html>
