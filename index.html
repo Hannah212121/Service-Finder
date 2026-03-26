@@ -1,44 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Dorset Service Finder</title>
-  <style>
-    body { font-family: Arial; padding: 20px; }
-    input, label { margin: 5px; }
-    .service { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; }
-  </style>
-</head>
-<body>
-
-<h1>Dorset Service Finder</h1>
-
-<p id="status">Loading data...</p>
-
-<!-- 🔍 Filters -->
-<input type="text" id="search" placeholder="Search services...">
-
-<label>
-  <input type="checkbox" id="freeOnly">
-  Free only
-</label>
-
-<label>
-  Age:
-  <input type="number" id="ageInput" placeholder="Enter age">
-</label>
-
-<button onclick="applyFilters()">Apply Filters</button>
-
-<hr>
-
-<div id="results"></div>
-
 <script>
 let allServices = [];
 
 async function fetchAllServices() {
   const baseUrl = "https://dorset.localplacedirectory.org.uk/aggregator/services";
-  const totalPages = 204;
+  const totalPages = 10; // ✅ ONLY LOAD FIRST 10 PAGES
   const pageSize = 10;
 
   const status = document.getElementById("status");
@@ -57,7 +22,7 @@ async function fetchAllServices() {
     }
   }
 
-  status.textContent = `Loaded ${allServices.length} services ✅`;
+  status.textContent = `Loaded ${allServices.length} services (first ${totalPages} pages) ✅`;
   display(allServices);
 }
 
@@ -89,7 +54,6 @@ function applyFilters() {
   const freeOnly = document.getElementById("freeOnly").checked;
   const age = parseInt(document.getElementById("ageInput").value);
 
-  // 🔍 Keyword filter
   if (search) {
     filtered = filtered.filter(s =>
       (s.name && s.name.toLowerCase().includes(search)) ||
@@ -98,14 +62,12 @@ function applyFilters() {
     );
   }
 
-  // 💰 Free filter
   if (freeOnly) {
     filtered = filtered.filter(s =>
       s.cost_options?.some(c => c.amount === 0)
     );
   }
 
-  // 🎂 Age filter
   if (!isNaN(age)) {
     filtered = filtered.filter(s =>
       (s.minimum_age === null || age >= s.minimum_age) &&
@@ -116,9 +78,5 @@ function applyFilters() {
   display(filtered);
 }
 
-// Load everything on page start
 fetchAllServices();
 </script>
-
-</body>
-</html>
