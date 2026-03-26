@@ -1,26 +1,33 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Dorset Services</title>
-</head>
-<body>
-
-<h1>Service Finder</h1>
-
-<input type="text" id="search" placeholder="Search services...">
-
-<ul id="results"></ul>
-
 <script>
 let allServices = [];
 
-// Fetch first page (you can expand later)
-fetch("https://dorset.localplacedirectory.org.uk/aggregator/services?page=1&size=50")
-  .then(res => res.json())
-  .then(data => {
-    allServices = data.contents;
-    display(allServices);
-  });
+async function fetchAllServices() {
+  const baseUrl = "https://dorset.localplacedirectory.org.uk/aggregator/services";
+  const totalPages = 204; // from your API response
+  const pageSize = 10;
+
+  const status = document.createElement("p");
+  status.textContent = "Loading data...";
+  document.body.appendChild(status);
+
+  for (let page = 1; page <= totalPages; page++) {
+    try {
+      const res = await fetch(`${baseUrl}?page=${page}&size=${pageSize}`);
+      const data = await res.json();
+
+      allServices = allServices.concat(data.contents);
+
+      status.textContent = `Loading page ${page} of ${totalPages}...`;
+
+    } catch (err) {
+      console.error("Error loading page", page, err);
+    }
+  }
+
+  status.textContent = `Loaded ${allServices.length} services ✅`;
+
+  display(allServices);
+}
 
 function display(services) {
   const list = document.getElementById("results");
@@ -33,18 +40,6 @@ function display(services) {
   });
 }
 
-// Filter when typing
-document.getElementById("search").addEventListener("input", (e) => {
-  const term = e.target.value.toLowerCase();
-
-  const filtered = allServices.filter(s =>
-    s.name.toLowerCase().includes(term) ||
-    s.description.toLowerCase().includes(term)
-  );
-
-  display(filtered);
-});
+// Start loading everything
+fetchAllServices();
 </script>
-
-</body>
-</html>
