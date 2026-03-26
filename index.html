@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dorset Services</title>
+</head>
+<body>
+
+<h1>Service Finder</h1>
+
+<input type="text" id="search" placeholder="Search services...">
+
+<ul id="results"></ul>
+
+<script>
+let allServices = [];
+
+// Fetch first page (you can expand later)
+fetch("https://dorset.localplacedirectory.org.uk/aggregator/services?page=1&size=50")
+  .then(res => res.json())
+  .then(data => {
+    allServices = data.contents;
+    display(allServices);
+  });
+
+function display(services) {
+  const list = document.getElementById("results");
+  list.innerHTML = "";
+
+  services.forEach(s => {
+    const li = document.createElement("li");
+    li.textContent = s.name;
+    list.appendChild(li);
+  });
+}
+
+// Filter when typing
+document.getElementById("search").addEventListener("input", (e) => {
+  const term = e.target.value.toLowerCase();
+
+  const filtered = allServices.filter(s =>
+    s.name.toLowerCase().includes(term) ||
+    s.description.toLowerCase().includes(term)
+  );
+
+  display(filtered);
+});
+</script>
+
+</body>
+</html>
