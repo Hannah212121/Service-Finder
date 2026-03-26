@@ -2,28 +2,24 @@
 let allServices = [];
 
 async function fetchAllServices() {
-  const baseUrl = "https://dorset.localplacedirectory.org.uk/aggregator/services";
-  const totalPages = 10; // ✅ ONLY LOAD FIRST 10 PAGES
-  const pageSize = 10;
+  const url = "https://dorset.localplacedirectory.org.uk/aggregator/services?page=1&size=10";
 
   const status = document.getElementById("status");
 
-  for (let page = 1; page <= totalPages; page++) {
-    try {
-      const res = await fetch(`${baseUrl}?page=${page}&size=${pageSize}`);
-      const data = await res.json();
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
 
-      allServices = allServices.concat(data.contents);
+    allServices = data.contents;
 
-      status.textContent = `Loading page ${page} of ${totalPages}...`;
+    status.textContent = `Loaded ${allServices.length} services ✅`;
 
-    } catch (err) {
-      console.error("Error loading page", page, err);
-    }
+    display(allServices);
+
+  } catch (err) {
+    console.error(err);
+    status.textContent = "Error loading data ❌";
   }
-
-  status.textContent = `Loaded ${allServices.length} services (first ${totalPages} pages) ✅`;
-  display(allServices);
 }
 
 function display(services) {
@@ -38,9 +34,7 @@ function display(services) {
       <h3>${s.name}</h3>
       <p><strong>Organisation:</strong> ${s.organization?.name || "N/A"}</p>
       <p>${s.description || ""}</p>
-      <p>
-        <a href="${s.url}" target="_blank">Visit website</a>
-      </p>
+      <p><a href="${s.url}" target="_blank">Visit website</a></p>
     `;
 
     container.appendChild(div);
