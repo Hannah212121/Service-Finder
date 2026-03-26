@@ -1,15 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Service Finder</title>
+  <title>Dorset Service Finder</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    input, label { margin: 5px; }
+    .service { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; }
+  </style>
 </head>
 <body>
 
 <h1>Dorset Service Finder</h1>
+
 <p id="status">Loading data...</p>
 
-<!-- THIS IS THE KEY LINE -->
-<ul id="results"></ul>
+<!-- 🔍 Filters -->
+<input type="text" id="search" placeholder="Search services...">
+
+<label>
+  <input type="checkbox" id="freeOnly">
+  Free only
+</label>
+
+<label>
+  Age:
+  <input type="number" id="ageInput" placeholder="Enter age">
+</label>
+
+<button onclick="applyFilters()">Apply Filters</button>
+
+<hr>
+
+<div id="results"></div>
 
 <script>
 let allServices = [];
@@ -36,21 +58,65 @@ async function fetchAllServices() {
   }
 
   status.textContent = `Loaded ${allServices.length} services ✅`;
-
   display(allServices);
 }
 
 function display(services) {
-  const list = document.getElementById("results");
-  list.innerHTML = "";
+  const container = document.getElementById("results");
+  container.innerHTML = "";
 
   services.forEach(s => {
-    const li = document.createElement("li");
-    li.textContent = s.name;
-    list.appendChild(li);
+    const div = document.createElement("div");
+    div.className = "service";
+
+    div.innerHTML = `
+      <h3>${s.name}</h3>
+      <p><strong>Organisation:</strong> ${s.organization?.name || "N/A"}</p>
+      <p>${s.description || ""}</p>
+      <p>
+        <a href="${s.url}" target="_blank">Visit website</a>
+      </p>
+    `;
+
+    container.appendChild(div);
   });
 }
 
+function applyFilters() {
+  let filtered = [...allServices];
+
+  const search = document.getElementById("search").value.toLowerCase();
+  const freeOnly = document.getElementById("freeOnly").checked;
+  const age = parseInt(document.getElementById("ageInput").value);
+
+  // 🔍 Keyword filter
+  if (search) {
+    filtered = filtered.filter(s =>
+      (s.name && s.name.toLowerCase().includes(search)) ||
+      (s.description && s.description.toLowerCase().includes(search)) ||
+      (s.organization?.name && s.organization.name.toLowerCase().includes(search))
+    );
+  }
+
+  // 💰 Free filter
+  if (freeOnly) {
+    filtered = filtered.filter(s =>
+      s.cost_options?.some(c => c.amount === 0)
+    );
+  }
+
+  // 🎂 Age filter
+  if (!isNaN(age)) {
+    filtered = filtered.filter(s =>
+      (s.minimum_age === null || age >= s.minimum_age) &&
+      (s.maximum_age === null || age <= s.maximum_age)
+    );
+  }
+
+  display(filtered);
+}
+
+// Load everything on page start
 fetchAllServices();
 </script>
 
